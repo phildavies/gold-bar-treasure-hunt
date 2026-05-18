@@ -1,38 +1,32 @@
 # Phase 1 Setup Guide
 
-## 1. Create The Google Sheet
+## 1. Use The Existing Google Sheet
 
-Create a Google Sheet named:
-
-```text
-Gold Bar Treasure Hunt Database
-```
-
-Copy the Sheet ID from the URL:
+Do not create a replacement database for Phase 1. Use the existing development sheet:
 
 ```text
-https://docs.google.com/spreadsheets/d/SHEET_ID_IS_HERE/edit
+https://docs.google.com/spreadsheets/d/1AdVgrGRQjc-cisIOE6Bx55RHLFmP9NqThOFBFC2Uq3Y/edit
 ```
 
-Phase 1 uses these tabs:
+Existing Phase 1 tabs:
 
-- `scans`
-- `players`
-
-The Apps Script creates them automatically.
+- `QR_Scans`
+- `QR_Player_Unique`
+- `QR_Player_Master`
+- `Game Tiers`
 
 ## 2. Create The Apps Script API
 
 1. Open [script.google.com](https://script.google.com).
 2. Create a new project.
 3. Paste the contents of `backend/apps-script.js`.
-4. Replace:
+4. Confirm this value is present:
 
 ```js
-SPREADSHEET_ID: "PASTE_GOOGLE_SHEET_ID_HERE"
+SPREADSHEET_ID: "1AdVgrGRQjc-cisIOE6Bx55RHLFmP9NqThOFBFC2Uq3Y"
 ```
 
-with your real Google Sheet ID.
+This points Apps Script at the existing development sheet.
 
 5. Optional: restrict accepted QR codes:
 
@@ -66,35 +60,67 @@ Expected result includes:
 }
 ```
 
-## 4. Add Frontend Scripts To The Website
+## 4. Create Production Config
 
-Upload these files to the website:
+Copy:
 
 ```text
-/frontend/player.js
-/frontend/tracking.js
+frontend/config.js.example
 ```
 
-On each treasure hunt page, add this before the closing `</body>` tag:
+to:
 
-```html
-<script>
-  window.GoldBarTreasureHuntConfig = {
-    apiUrl: "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE",
-    albatoWebhookUrl: ""
-  };
-</script>
-<script src="/frontend/player.js"></script>
-<script src="/frontend/tracking.js"></script>
+```text
+frontend/config.js
 ```
 
-To keep Albato logging during the transition:
+Then update:
 
 ```js
-albatoWebhookUrl: "PASTE_EXISTING_ALBATO_WEBHOOK_URL_HERE"
+window.GoldBarTreasureHuntConfig = {
+  apiUrl: "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE",
+  albatoWebhookUrl: "",
+  debug: true,
+  testMode: true,
+  requestTimeoutMs: 12000,
+  retryCount: 1,
+  retryDelayMs: 1500
+};
 ```
 
-## 5. Add The Small Tracking UI
+For live testing, keep `debug: true`.
+
+After the system is stable, you can set:
+
+```js
+debug: false
+```
+
+## 5. Add Scripts To Joomla
+
+Upload these files to your site:
+
+```text
+config.js
+player.js
+tracking.js
+live-status.js
+debug-overlay.js
+```
+
+Add them to the Joomla page or template. This script order is recommended:
+
+```html
+<script src="/frontend/config.js"></script>
+<script src="/frontend/player.js"></script>
+<script src="/frontend/tracking.js"></script>
+<script src="/frontend/live-status.js"></script>
+<script src="/frontend/debug-overlay.js"></script>
+```
+
+The tracker also retries initialization briefly if `tracking.js` loads before `player.js`, which helps with Joomla template quirks.
+
+## 6. Add The Small Tracking UI
 
 Add this where you want the player and progress status to appear:
 
@@ -102,19 +128,19 @@ Add this where you want the player and progress status to appear:
 <section class="treasure-hunt-widget">
   <form data-gb-player-form>
     <label>
-      Player name or code
-      <input data-gb-player-input type="text" autocomplete="nickname" required>
+      Display name (optional)
+      <input data-gb-player-input type="text" autocomplete="nickname">
     </label>
-    <button type="submit">Save player</button>
+    <button type="submit">Save name</button>
   </form>
 
   <p>Player: <strong data-gb-player-display>No player set</strong></p>
-  <p data-gb-progress>Unique clues found: 0 | Total scans: 0</p>
+  <p data-gb-progress>Found 0 clues</p>
   <p data-gb-message hidden></p>
 </section>
 ```
 
-## 6. Keep Existing QR URLs
+## 7. Keep Existing QR URLs
 
 No QR redesign is needed. Keep URLs like:
 

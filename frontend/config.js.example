@@ -1,6 +1,14 @@
 window.GoldBarTreasureHuntConfig = {
   apiUrl: "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE",
   albatoWebhookUrl: "",
+  debug: true,
+  testMode: true,
+  showDebugOverlay: true,
+  requestTimeoutMs: 12000,
+  retryCount: 1,
+  retryDelayMs: 1500,
+  enableOfflineQueue: true,
+  enableVibration: true,
   huntName: "Gold Bar Koh Tao Treasure Hunt",
   selectors: {
     playerForm: "[data-gb-player-form]",

@@ -6,7 +6,7 @@ Phase 1 is stable scan tracking only.
 
 It answers these questions:
 
-- Who is the player?
+- Which generated `player_uuid` identifies the player?
 - Which QR code did they scan?
 - Has this player already scanned this QR code?
 - How many unique clues has this player found?
@@ -27,19 +27,19 @@ The page itself can show any existing content. The tracking script only needs th
 
 1. Player opens a QR page.
 2. `tracking.js` reads `qr_id` from the page URL.
-3. `player.js` reads `player_id` from `localStorage`.
-4. If no player exists, the player can enter one in the small page form.
+3. `player.js` reads or creates `player_uuid` in browser storage.
+4. The player can optionally enter a display name in the small page form.
 5. `tracking.js` sends the scan to Google Apps Script.
 6. Apps Script creates:
 
 ```text
-scan_key = player_id + "_" + qr_id
+scan_key = player_uuid + "_" + qr_id
 ```
 
-7. Apps Script checks the `scans` sheet for the same `scan_key`.
+7. Apps Script checks the `QR_Scans` sheet for the same `scan_key`.
 8. If the key already exists, the scan is logged as a duplicate.
 9. If the key is new, unique progress increases by one.
-10. The frontend displays unique scans and total scans.
+10. The frontend displays `Found X clues`.
 
 ## Components
 
@@ -47,7 +47,7 @@ scan_key = player_id + "_" + qr_id
 
 - `frontend/player.js`: localStorage player handling.
 - `frontend/tracking.js`: QR detection, scan submission, progress display.
-- `frontend/config.example.js`: copy/paste configuration.
+- `frontend/config.js.example`: copy/paste configuration. Copy this to `config.js` for production.
 
 ### Backend
 
@@ -55,12 +55,16 @@ scan_key = player_id + "_" + qr_id
 
 ### Google Sheets
 
-Phase 1 uses two tabs:
+Phase 1 now uses the existing development sheet rather than creating a replacement workbook.
 
-- `scans`
-- `players`
+Existing tabs:
 
-The Apps Script creates these automatically if they do not exist.
+- `QR_Scans`: append-only raw scan attempts.
+- `QR_Player_Unique`: existing unique scan rollup/reporting tab.
+- `QR_Player_Master`: player-level progress state.
+- `Game Tiers`: existing tier threshold reference.
+
+Apps Script does not create replacement tabs during Phase 1. It validates that the existing tabs are present.
 
 ## Apps Script API
 
@@ -75,7 +79,8 @@ GET ?action=health
 ```json
 {
   "action": "track_scan",
-  "player_id": "GB-20260518-ABC123",
+  "player_uuid": "GB-20260518-ABC123",
+  "player_id": "Optional Display Name",
   "qr_id": "birdbaths01",
   "timestamp": "2026-05-18T10:00:00.000Z"
 }
@@ -84,7 +89,7 @@ GET ?action=health
 ### Get Progress
 
 ```text
-GET ?action=get_progress&player_id=GB-20260518-ABC123
+GET ?action=get_progress&player_uuid=GB-20260518-ABC123
 ```
 
 ## Albato Compatibility

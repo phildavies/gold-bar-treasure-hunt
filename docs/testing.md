@@ -27,7 +27,8 @@ fetch("YOUR_WEB_APP_URL", {
   headers: { "Content-Type": "text/plain;charset=utf-8" },
   body: JSON.stringify({
     action: "track_scan",
-    player_id: "testplayer01",
+    player_uuid: "testplayer01",
+    player_id: "Test Player",
     qr_id: "birdbaths01",
     timestamp: new Date().toISOString()
   })
@@ -60,14 +61,14 @@ Expected result:
 }
 ```
 
-The duplicate scan should appear in the `scans` tab, but it should not increase `unique_scan_count`.
+The duplicate scan should appear in the `QR_Scans` tab, but it should not increase `unique_scan_count`.
 
 ## Test Progress
 
 Open:
 
 ```text
-YOUR_WEB_APP_URL?action=get_progress&player_id=testplayer01
+YOUR_WEB_APP_URL?action=get_progress&player_uuid=testplayer01
 ```
 
 Expected result:
@@ -75,7 +76,7 @@ Expected result:
 ```json
 {
   "ok": true,
-  "player_id": "testplayer01",
+  "player_uuid": "testplayer01",
   "unique_scan_count": 1,
   "total_scan_count": 2
 }
@@ -84,14 +85,18 @@ Expected result:
 ## Frontend Checklist
 
 1. Open a QR page with `?qr_id=birdbaths01`.
-2. Enter a player name and save it.
-3. Confirm the message says the clue was saved.
-4. Confirm the `scans` sheet has a new row.
-5. Refresh the page.
-6. Confirm the player name is remembered.
-7. Confirm the duplicate scan does not increase unique progress.
-8. Visit a second QR page with a different `qr_id`.
-9. Confirm unique progress increases.
+2. Confirm `player_uuid` is generated in the debug logs or overlay.
+3. Optionally enter a display name and save it.
+4. Confirm the message says the clue was saved.
+5. Confirm the page says `Found 1 clues`.
+6. Confirm the `QR_Scans` sheet has a new row.
+7. Refresh the page.
+8. Confirm the same `player_uuid` is remembered.
+9. Confirm the duplicate scan does not increase unique progress.
+10. Visit a second QR page with a different `qr_id`.
+11. Confirm unique progress increases.
+
+For live browser testing, use [live-testing-checklist.md](live-testing-checklist.md).
 
 ## Common Issues
 
@@ -108,9 +113,9 @@ Redeploy the web app and confirm:
 
 ### Progress does not increase
 
-Check the `scans` sheet:
+Check the `QR_Scans` sheet:
 
-- Is `player_id` present?
+- Is `player_uuid` present in column E?
 - Is `qr_id` present?
 - Does the same `scan_key` already exist?
 - Is `is_duplicate` set to `TRUE`?
