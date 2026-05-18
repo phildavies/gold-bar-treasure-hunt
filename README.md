@@ -10,7 +10,7 @@ Rewards, email capture, staff validation, and leaderboard features are intention
 
 ```text
 /frontend
-  config.example.js
+  config.js.example
   player.js
   tracking.js
 
@@ -38,5 +38,6 @@ Rewards, email capture, staff validation, and leaderboard features are intention
 
 1. Read [docs/setup.md](docs/setup.md).
 2. Paste [backend/apps-script.js](backend/apps-script.js) into Google Apps Script.
-3. Add [frontend/player.js](frontend/player.js) and [frontend/tracking.js](frontend/tracking.js) to the current website.
-4. Test with [docs/testing.md](docs/testing.md).
+3. Copy [frontend/config.js.example](frontend/config.js.example) to `config.js` and add your Apps Script URL.
+4. Add `tracking.js`, `player.js`, and `config.js` to the Joomla page or template.
+5. Test with [docs/live-testing-checklist.md](docs/live-testing-checklist.md).
